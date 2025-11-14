@@ -1,0 +1,34 @@
+{
+  "name": "cf_ai_task_manager",
+  "version": "1.0.0",
+  "description": "AI-powered task management agent built on Cloudflare with Llama 3.3, real-time chat, and workflow coordination",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "tsc",
+    "start": "wrangler dev",
+    "pages:dev": "cd frontend && npm run dev",
+    "pages:build": "cd frontend && npm run build",
+    "pages:deploy": "cd frontend && npm run build && wrangler pages deploy dist"
+  },
+  "keywords": [
+    "cloudflare",
+    "ai",
+    "agents",
+    "task-management",
+    "llama",
+    "workers-ai",
+    "durable-objects"
+  ],
+  "author": "Cloudflare AI Assignment",
+  "license": "MIT",
+  "dependencies": {
+    "@cloudflare/workers-types": "^4.20241127.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "wrangler": "^4.48.0",
+    "@types/node": "^20.0.0"
+  }
+}
