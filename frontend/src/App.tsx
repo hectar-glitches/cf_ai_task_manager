@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Send, Plus, CheckCircle, Circle, Clock, AlertTriangle, BarChart3, MessageSquare, List } from 'lucide-react';
 
 // Types
@@ -35,9 +35,11 @@ interface Analytics {
   productivityScore: number;
 }
 
-const API_BASE = '/api';
-
 function App() {
+  const API_BASE_URL = import.meta.env.MODE === 'production'
+    ? 'https://cloudfare-assignment.hectar.workers.dev'
+    : '';
+
   const [activeTab, setActiveTab] = useState<'chat' | 'tasks' | 'analytics'>('chat');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -79,7 +81,7 @@ function App() {
 
     // Simple HTTP API call - much simpler!
     try {
-      const response = await fetch(`${API_BASE}/chat`, {
+      const response = await fetch(`${API_BASE_URL}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, message: inputMessage })
@@ -100,7 +102,7 @@ function App() {
 
   const loadTasks = async () => {
     try {
-      const response = await fetch(`${API_BASE}/tasks?userId=${userId}`);
+      const response = await fetch(`${API_BASE_URL}/tasks?userId=${userId}`);
       if (response.ok) {
         const data = await response.json();
         setTasks(data.tasks || []);
@@ -112,7 +114,7 @@ function App() {
 
   const loadAnalytics = async () => {
     try {
-      const response = await fetch(`${API_BASE}/analytics?userId=${userId}`);
+      const response = await fetch(`${API_BASE_URL}/analytics?userId=${userId}`);
       if (response.ok) {
         const data = await response.json();
         setAnalytics(data);
@@ -124,7 +126,7 @@ function App() {
 
   const updateTaskStatus = async (taskId: string, status: Task['status']) => {
     try {
-      const response = await fetch(`${API_BASE}/tasks/${taskId}`, {
+      const response = await fetch(`${API_BASE_URL}/tasks/${taskId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })

@@ -3,10 +3,6 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  build: {
-    outDir: 'dist',
-    sourcemap: true,
-  },
   server: {
     port: 3000,
     proxy: {
@@ -14,10 +10,10 @@ export default defineConfig({
         target: 'http://localhost:8788',
         changeOrigin: true,
       },
-      '/ws': {
-        target: 'ws://localhost:8788',
-        ws: true,
-      }
-    }
-  }
+    },
+  },
+  build: {
+    outDir: 'dist',
+    sourcemap: true,
+  },
 })
