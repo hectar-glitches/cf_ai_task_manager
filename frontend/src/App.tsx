@@ -81,7 +81,7 @@ function App() {
 
     // Simple HTTP API call - much simpler!
     try {
-      const response = await fetch(`${API_BASE_URL}/chat`, {
+      const response = await fetch(`${API_BASE_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, message: inputMessage })
@@ -102,7 +102,7 @@ function App() {
 
   const loadTasks = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/tasks?userId=${userId}`);
+      const response = await fetch(`${API_BASE_URL}/api/tasks?userId=${userId}`);
       if (response.ok) {
         const data = await response.json();
         setTasks(data.tasks || []);
@@ -114,7 +114,7 @@ function App() {
 
   const loadAnalytics = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/analytics?userId=${userId}`);
+      const response = await fetch(`${API_BASE_URL}/api/analytics?userId=${userId}`);
       if (response.ok) {
         const data = await response.json();
         setAnalytics(data);
@@ -126,7 +126,7 @@ function App() {
 
   const updateTaskStatus = async (taskId: string, status: Task['status']) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/tasks/${taskId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/tasks/${taskId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
