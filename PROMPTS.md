@@ -34,14 +34,13 @@ I built this AI-powered task management application primarily through hands-on c
 **Prompt:** "Why does env.AI show 'not supported' when running wrangler dev --local?"
 **Resolution:** Removed `--local` flag to enable remote AI binding access
 
-### 6. Frontend API Base URL Configuration
-**Issue:** Frontend hardcoded to localhost, needed production URL
-**Prompt:** "How to configure different API base URLs for development vs production in Vite?"
-**Resolution:** Created .env.production with `VITE_API_BASE_URL` variable
+### 6. Write documentation on the project
+**Issue:** Too laborous to comment and create the readme.md
+**Prompt:** "Can you create a README for this project and add comments where necessary for production?""
 
 **Total Development Time:** ~8 hours as I was not fully familiar with the whole worker and agent ecosystem.
 
 **AI was used for:**
 - Resolving 6 specific technical issues
 - Understanding Cloudflare platform constraints
-- Debugging environment/configuration problems
+- Code readability

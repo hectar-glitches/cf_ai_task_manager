@@ -1,8 +1,5 @@
-// Minimal AI-powered task management API for Cloudflare assignment
-// Uses only Cloudflare Workers AI - no external APIs needed
-
 interface Env {
-  AI: any; // Cloudflare AI binding
+  AI: any;
 }
 
 export default {
@@ -46,13 +43,13 @@ export default {
               { 
                 role: 'system', 
                 content: `You are an expert research assistant that helps users find and synthesize academic sources. When given a research question or topic:
-1. Suggest relevant search terms and databases
-2. Explain what types of sources would be most valuable
-3. Guide users on evaluating source credibility
-4. Help synthesize information from multiple perspectives
-5. Identify gaps in current research
+                        1. Suggest relevant search terms and databases
+                        2. Explain what types of sources would be most valuable
+                        3. Guide users on evaluating source credibility
+                        4. Help synthesize information from multiple perspectives
+                        5. Identify gaps in current research
 
-Be scholarly but accessible. Cite general research principles and methodologies.` 
+                        Be scholarly but accessible. Cite general research principles and methodologies.` 
               },
               { role: 'user', content: message }
             ]
@@ -76,7 +73,7 @@ Be scholarly but accessible. Cite general research principles and methodologies.
 
       // Fallback response
       if (!aiContent || typeof aiContent !== 'string') {
-        aiContent = `I'm your AI research synthesis assistant. You said: "${message}". I can help you find relevant sources, evaluate their credibility, and synthesize insights for your research question. What would you like to explore?`;
+        aiContent = `I'm your research synthesis assistant. You asked: "${message}". I can help you find credible sources, evaluate academic literature, and synthesize research insights. What research topic would you like to explore?`;
       }
 
       return new Response(JSON.stringify({
