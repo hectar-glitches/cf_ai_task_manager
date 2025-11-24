@@ -35,7 +35,7 @@ interface Analytics {
   productivityScore: number;
 }
 
-const API_BASE = '/api'; // Simple HTTP API - no WebSocket needed!
+const API_BASE = '/api';
 
 function App() {
   const [activeTab, setActiveTab] = useState<'chat' | 'tasks' | 'analytics'>('chat');
@@ -169,10 +169,10 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="bg-white shadow-sm border-b flex-shrink-0">
+        <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
@@ -180,7 +180,9 @@ function App() {
               </div>
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">AI Task Manager</h1>
-                <p className="text-sm text-gray-500">Powered by Cloudflare & Llama 3.3</p>
+                <p className="text-sm text-gray-500">
+                  Powered by Cloudflare & Llama 3.3 • Active: {activeTab}
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
@@ -193,10 +195,10 @@ function App() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Navigation Tabs */}
-        <div className="mb-6">
-          <nav className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit">
+      {/* Navigation Tabs - Always Visible */}
+      <div className="bg-white border-b border-gray-200 flex-shrink-0">
+        <nav className="flex justify-center px-4 sm:px-6 lg:px-8">
+          <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg m-4">
             {[
               { id: 'chat', icon: MessageSquare, label: 'Chat' },
               { id: 'tasks', icon: List, label: 'Tasks' },
@@ -205,23 +207,26 @@ function App() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`flex items-center space-x-2 px-6 py-3 rounded-md text-sm font-medium transition-colors ${
                   activeTab === tab.id
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
                 <span>{tab.label}</span>
               </button>
             ))}
-          </nav>
-        </div>
+          </div>
+        </nav>
+      </div>
+
+      <div className="flex-1 px-4 sm:px-6 lg:px-8 py-6 overflow-hidden">
 
         {/* Chat Tab */}
         {activeTab === 'chat' && (
-          <div className="bg-white rounded-lg shadow-sm border">
-            <div className="flex flex-col h-96">
+          <div className="bg-white rounded-lg shadow-sm border h-full flex flex-col">
+            <div className="flex flex-col flex-1">
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.length === 0 && (
@@ -288,21 +293,25 @@ function App() {
 
         {/* Tasks Tab */}
         {activeTab === 'tasks' && (
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-gray-900">Your Tasks</h2>
-              <button
-                onClick={() => setActiveTab('chat')}
-                className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition-colors flex items-center space-x-2"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Create Task</span>
-              </button>
-            </div>
+          <div className="bg-white rounded-lg shadow-sm border h-full flex flex-col">
+            <div className="p-6 space-y-4 flex-1 overflow-y-auto">
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-semibold text-gray-900">Your Tasks</h2>
+                <button
+                  onClick={() => {
+                    setActiveTab('chat');
+                    setInputMessage('Create a new task');
+                  }}
+                  className="bg-blue-600 text-white rounded-lg px-4 py-2 hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Create Task</span>
+                </button>
+              </div>
 
             <div className="grid gap-4">
               {tasks.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-lg border">
+                <div className="text-center py-12">
                   <List className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                   <p className="text-gray-500">No tasks yet</p>
                   <p className="text-sm text-gray-400 mt-1">
@@ -370,13 +379,15 @@ function App() {
                 ))
               )}
             </div>
+            </div>
           </div>
         )}
 
         {/* Analytics Tab */}
         {activeTab === 'analytics' && (
-          <div className="space-y-6">
-            <h2 className="text-lg font-semibold text-gray-900">Task Analytics</h2>
+          <div className="bg-white rounded-lg shadow-sm border h-full flex flex-col">
+            <div className="p-6 space-y-6 flex-1 overflow-y-auto">
+              <h2 className="text-lg font-semibold text-gray-900">Task Analytics</h2>
             
             {analytics ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -436,6 +447,7 @@ function App() {
                 <p className="text-gray-500">Loading analytics...</p>
               </div>
             )}
+            </div>
           </div>
         )}
       </div>

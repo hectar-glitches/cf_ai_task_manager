@@ -2,26 +2,12 @@ name = "cf_ai_task_manager"
 main = "src/index.ts"
 compatibility_date = "2024-11-14"
 
-[env.production.vars]
-# Add your environment variables here for production
-
-# Durable Objects disabled for demo mode
-# [[durable_objects.bindings]]
-# name = "TASK_MANAGER_AGENT"
-# class_name = "TaskManagerAgent"
-
-# [[migrations]]
-# tag = "v1"
-# new_sqlite_classes = ["TaskManagerAgent"]
-
+# AI binding for production deployment
 [ai]
 binding = "AI"
+remote = true
 
-# Workflows will be added when available in beta
-
-# For Pages integration
+# Production environment with AI
 [env.production]
-route = "cf-ai-task-manager.pages.dev/*"
-
-[build]
-command = "npm run build"
+[env.production.vars]
+# Add your environment variables here for production
