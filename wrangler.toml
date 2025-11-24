@@ -11,3 +11,6 @@ remote = true
 [env.production]
 [env.production.vars]
 # Add your environment variables here for production
+
+# Pages configuration for frontend deployment
+pages_build_output_dir = "frontend/dist"
