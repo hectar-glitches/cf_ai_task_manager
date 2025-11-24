@@ -1,6 +1,7 @@
-name = "cf_ai_task_manager"
+name = "cf-ai-task-manager-v2"
 main = "src/index.ts"
 compatibility_date = "2024-11-14"
+account_id = "534760d51d6de63e724638b7c34f773a"
 
 # AI binding for production deployment
 [ai]

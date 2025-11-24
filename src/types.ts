@@ -1,23 +1,16 @@
-// Types for our task management system
-export interface Task {
+// Research Synthesis Agent Types
+
+export interface ResearchSource {
   id: string;
   title: string;
-  description: string;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  status: 'pending' | 'in-progress' | 'completed' | 'cancelled';
-  dueDate?: string;
-  createdAt: string;
-  updatedAt: string;
-  tags: string[];
-}
-
-export interface User {
-  id: string;
-  name: string;
-  preferences: {
-    timezone: string;
-    reminderPreferences: string[];
-  };
+  authors: string[];
+  year: number;
+  type: 'journal' | 'book' | 'conference' | 'website' | 'other';
+  url?: string;
+  relevance: string;
+  keyFindings: string[];
+  credibilityScore: number;
+  addedAt: string;
 }
 
 export interface ChatMessage {
@@ -27,19 +20,24 @@ export interface ChatMessage {
   timestamp: string;
   type: 'user' | 'agent' | 'system';
   metadata?: {
-    taskId?: string;
+    sourceId?: string;
     action?: string;
-    confidence?: number;
   };
 }
 
-export interface AgentState {
-  tasks: Task[];
-  users: User[];
-  chatHistory: ChatMessage[];
-  activeConversations: Map<string, string>; // userId -> conversationId
-  preferences: {
-    reminderIntervals: number[];
-    workingHours: { start: number; end: number };
-  };
+export interface ResearchProject {
+  id: string;
+  question: string;
+  description: string;
+  sources: ResearchSource[];
+  synthesis?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Analytics {
+  totalSources: number;
+  sourcesByType: Record<string, number>;
+  averageCredibility: number;
+  recentActivity: number;
 }

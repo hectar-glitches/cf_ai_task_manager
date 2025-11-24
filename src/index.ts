@@ -32,37 +32,51 @@ export default {
       });
     }
 
-    // Chat endpoint - the main AI functionality
+    // Chat endpoint - Research Synthesis Agent
     if (path === "/api/chat" && request.method === "POST") {
       const { message } = await request.json() as any;
       
       let aiContent;
       
-      // Try to use Cloudflare Workers AI if available (production)
+      // Use Cloudflare Workers AI for research synthesis
       if (env.AI) {
         try {
-          const aiResponse = await env.AI.run('@cf/meta/llama-3.3-70b-instruct', {
+          const aiResponse = await env.AI.run('@cf/meta/llama-3.1-70b-instruct', {
             messages: [
               { 
                 role: 'system', 
-                content: `You are a helpful AI task management assistant powered by Llama 3.3. Help users create and manage tasks through natural conversation. Be concise and helpful.` 
+                content: `You are an expert research assistant that helps users find and synthesize academic sources. When given a research question or topic:
+1. Suggest relevant search terms and databases
+2. Explain what types of sources would be most valuable
+3. Guide users on evaluating source credibility
+4. Help synthesize information from multiple perspectives
+5. Identify gaps in current research
+
+Be scholarly but accessible. Cite general research principles and methodologies.` 
               },
               { role: 'user', content: message }
             ]
-          });
-          aiContent = aiResponse.response;
+          }) as any;
+          
+          aiContent = aiResponse.response || aiResponse.result?.response || aiResponse;
+          
+          if (aiContent && typeof aiContent === 'string') {
+            console.log('AI Response received successfully');
+          } else {
+            console.error('Unexpected AI response format:', aiResponse);
+            aiContent = null;
+          }
         } catch (error) {
-          console.log('AI call failed, using fallback');
+          console.error('AI call error:', error);
+          aiContent = null;
         }
+      } else {
+        console.error('AI binding not available');
       }
 
-      // Fallback for local development or AI failures
-      if (!aiContent) {
-        if (message.toLowerCase().includes('create') || message.toLowerCase().includes('task')) {
-          aiContent = `I'd be happy to help you create a task! You mentioned: "${message}". In the full deployment with Cloudflare Workers AI, I would use Llama 3.3 to intelligently parse your request and help you create detailed tasks. What specific task would you like to create?`;
-        } else {
-          aiContent = `I'm your AI task management assistant (powered by Llama 3.3 when deployed to Cloudflare). You said: "${message}". I can help you create, update, and organize tasks. What would you like to do?`;
-        }
+      // Fallback response
+      if (!aiContent || typeof aiContent !== 'string') {
+        aiContent = `I'm your AI research synthesis assistant. You said: "${message}". I can help you find relevant sources, evaluate their credibility, and synthesize insights for your research question. What would you like to explore?`;
       }
 
       return new Response(JSON.stringify({
