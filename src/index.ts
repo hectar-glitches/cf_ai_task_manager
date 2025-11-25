@@ -119,16 +119,25 @@ Format your responses clearly. When presenting papers, make sure to include the 
           
           const aiResponse = await env.AI.run('@cf/qwen/qwen1.5-14b-chat-awq', {
             messages,
-            max_tokens: 2048,  // Increase from default 512 to allow longer responses
-            temperature: 0.7   // Add some creativity while staying factual
+            max_tokens: 2048,
+            temperature: 0.7
           }) as any;
           
-          aiContent = aiResponse.response || aiResponse.result?.response || aiResponse;
+          console.log('Raw AI response:', JSON.stringify(aiResponse).substring(0, 200));
+          
+          // Try multiple ways to extract the content
+          aiContent = aiResponse?.response || 
+                     aiResponse?.result?.response || 
+                     aiResponse?.choices?.[0]?.message?.content ||
+                     aiResponse?.content ||
+                     null;
+          
+          console.log('Extracted aiContent:', aiContent ? 'Success' : 'Failed', typeof aiContent);
           
           if (aiContent && typeof aiContent === 'string') {
-            console.log('AI Response received successfully');
+            console.log('AI Response received successfully, length:', aiContent.length);
           } else {
-            console.error('Unexpected AI response format:', aiResponse);
+            console.error('Unexpected AI response format. Full response:', JSON.stringify(aiResponse));
             aiContent = null;
           }
         } catch (error) {
