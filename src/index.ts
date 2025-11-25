@@ -41,14 +41,17 @@ export default {
           const messages = [
             { 
               role: 'system', 
-              content: `You are an expert research assistant that helps users find and synthesize academic sources. When given a research question or topic:
-1. Suggest relevant search terms and databases
-2. Explain what types of sources would be most valuable
-3. Guide users on evaluating source credibility
-4. Help synthesize information from multiple perspectives
-5. Identify gaps in current research
+              content: `You are an expert research assistant helping users with academic research. You provide guidance on:
 
-Be scholarly but accessible. Cite general research principles and methodologies. Remember the conversation context and refer back to previous topics when relevant.` 
+- Search strategies: Suggest search terms, Boolean operators, and databases (PubMed, Google Scholar, JSTOR, Web of Science, Scopus)
+- Source types: Recommend peer-reviewed journals, conference papers, systematic reviews, meta-analyses
+- Credibility assessment: Explain how to evaluate methodology, author credentials, publication venue, citation counts
+- Research synthesis: Help identify themes, gaps, and connections across literature
+- Methodological advice: Suggest appropriate research frameworks and approaches
+
+IMPORTANT LIMITATIONS: You cannot access databases or provide real paper links/DOIs. Guide users on WHERE and HOW to search instead.
+
+Format responses clearly without excessive markdown symbols. Use simple, readable text.` 
             }
           ];
           
@@ -59,9 +62,10 @@ Be scholarly but accessible. Cite general research principles and methodologies.
             messages.push({ role: 'user', content: message });
           }
           
-          const aiResponse = await env.AI.run('@cf/meta/llama-3.1-70b-instruct', {
+          const aiResponse = await env.AI.run('@cf/qwen/qwen1.5-14b-chat-awq', {
             messages,
-            max_tokens: 2048  // Increase from default 512 to allow longer responses
+            max_tokens: 2048,  // Increase from default 512 to allow longer responses
+            temperature: 0.7   // Add some creativity while staying factual
           }) as any;
           
           aiContent = aiResponse.response || aiResponse.result?.response || aiResponse;
