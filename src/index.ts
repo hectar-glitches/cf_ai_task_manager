@@ -2,6 +2,45 @@ interface Env {
   AI: any;
 }
 
+// Function to search Semantic Scholar for papers
+async function searchPapers(query: string, limit: number = 5) {
+  try {
+    const encodedQuery = encodeURIComponent(query);
+    const response = await fetch(
+      `https://api.semanticscholar.org/graph/v1/paper/search?query=${encodedQuery}&limit=${limit}&fields=title,authors,year,abstract,url,citationCount,venue,paperId`,
+      {
+        headers: {
+          'Accept': 'application/json'
+        }
+      }
+    );
+    
+    if (!response.ok) {
+      console.error('Semantic Scholar API error:', response.status);
+      return null;
+    }
+    
+    const data = await response.json() as any;
+    return data.data || [];
+  } catch (error) {
+    console.error('Error searching papers:', error);
+    return null;
+  }
+}
+
+// Function to format papers for AI context
+function formatPapersForAI(papers: any[]) {
+  if (!papers || papers.length === 0) return "No papers found.";
+  
+  return papers.map((paper, idx) => {
+    const authors = paper.authors?.map((a: any) => a.name).join(', ') || 'Unknown authors';
+    return `${idx + 1}. "${paper.title}" by ${authors} (${paper.year || 'N/A'})
+   Citations: ${paper.citationCount || 0} | Venue: ${paper.venue || 'N/A'}
+   URL: https://www.semanticscholar.org/paper/${paper.paperId}
+   Abstract: ${paper.abstract?.substring(0, 200) || 'No abstract available'}...`;
+  }).join('\n\n');
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
@@ -35,32 +74,46 @@ export default {
       
       let aiContent;
       
+      // Check if user is asking for papers and search Semantic Scholar
+      const askingForPapers = /\b(papers?|articles?|research|studies|publications?|find|search|sources?)\b/i.test(message);
+      let papersContext = "";
+      
+      if (askingForPapers) {
+        console.log('Searching for papers on:', message);
+        const papers = await searchPapers(message, 5);
+        if (papers && papers.length > 0) {
+          papersContext = `\n\nI found these relevant papers from Semantic Scholar:\n\n${formatPapersForAI(papers)}\n\n`;
+        }
+      }
+      
       // Use Cloudflare Workers AI for research synthesis
       if (env.AI) {
         try {
           const messages = [
             { 
               role: 'system', 
-              content: `You are an expert research assistant helping users with academic research. You provide guidance on:
+              content: `You are an expert research assistant with access to Semantic Scholar's academic paper database. When users ask about research topics:
 
-- Search strategies: Suggest search terms, Boolean operators, and databases (PubMed, Google Scholar, JSTOR, Web of Science, Scopus)
-- Source types: Recommend peer-reviewed journals, conference papers, systematic reviews, meta-analyses
-- Credibility assessment: Explain how to evaluate methodology, author credentials, publication venue, citation counts
-- Research synthesis: Help identify themes, gaps, and connections across literature
-- Methodological advice: Suggest appropriate research frameworks and approaches
+1. If I provide papers from Semantic Scholar, present them clearly with titles, authors, years, and links
+2. Help users understand which papers are most relevant and why
+3. Suggest additional search strategies and databases
+4. Guide on evaluating source credibility (citation counts, venues, methodology)
+5. Synthesize insights across multiple papers
 
-IMPORTANT LIMITATIONS: You cannot access databases or provide real paper links/DOIs. Guide users on WHERE and HOW to search instead.
-
-Format responses clearly without excessive markdown symbols. Use simple, readable text.` 
+Format your responses clearly. When presenting papers, make sure to include the Semantic Scholar URLs I provide.` 
             }
           ];
           
           // Add conversation history if provided
           if (history && Array.isArray(history)) {
             messages.push(...history);
-          } else {
-            messages.push({ role: 'user', content: message });
           }
+          
+          // Add current message with papers context if available
+          const userMessage = papersContext 
+            ? `${message}${papersContext}` 
+            : message;
+          messages.push({ role: 'user', content: userMessage });
           
           const aiResponse = await env.AI.run('@cf/qwen/qwen1.5-14b-chat-awq', {
             messages,
