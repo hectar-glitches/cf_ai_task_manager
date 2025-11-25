@@ -80,18 +80,30 @@ export default {
       
       // Check if user is asking for papers and search Semantic Scholar
       const askingForPapers = /\b(papers?|articles?|research|studies|publications?|find|search|sources?)\b/i.test(message);
-      let systemPrompt = "You are a helpful research assistant.";
       
       if (askingForPapers) {
         console.log('Searching for papers on:', message);
         const papers = await searchPapers(message, 5);
         console.log('Papers found:', papers ? papers.length : 0);
         if (papers && papers.length > 0) {
+          // Return papers directly without AI to avoid hallucination
           const formattedPapers = formatPapersForAI(papers);
-          systemPrompt = `You are a research assistant. IMPORTANT: Copy and paste these EXACT papers from Semantic Scholar. DO NOT make up your own papers. DO NOT change the URLs or citation counts. Present these EXACT citations:\n\n${formattedPapers}\n\nThen add a brief comment about their relevance.`;
-          console.log('System prompt with papers length:', systemPrompt.length);
+          aiContent = `Here are relevant papers from Semantic Scholar:\n\n${formattedPapers}\n\nThese papers cover various aspects of your research topic.`;
+          
+          return new Response(JSON.stringify({
+            message: {
+              id: Date.now(),
+              content: aiContent,
+              timestamp: new Date().toISOString(),
+              type: 'agent'
+            }
+          }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
         }
       }
+      
+      let systemPrompt = "You are a helpful research assistant.";
       
       // Use Cloudflare Workers AI for research synthesis
       if (env.AI) {
