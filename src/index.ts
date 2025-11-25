@@ -40,8 +40,8 @@ function formatPapersForAI(papers: any[]) {
     const citations = paper.citationCount || 0;
     const link = `https://www.semanticscholar.org/paper/${paper.paperId}`;
     
-    // Format in APA style
-    return `${authors} (${year}). ${title}. ${venue}. Citations: ${citations}. Retrieved from ${link}`;
+    // Format with numbering and markdown
+    return `**${idx + 1}. ${authors} (${year})**\n*${title}*\n${venue} • ${citations} citations\n[View on Semantic Scholar](${link})`;
   }).join('\n\n');
 }
 
@@ -78,24 +78,55 @@ export default {
       
       let aiContent;
       
-      // Check if user is asking for papers and search Semantic Scholar
-      const askingForPapers = /\b(papers?|articles?|research|studies|publications?|find|search|sources?)\b/i.test(message);
+      // Use AI to determine if user wants papers and extract topic
+      const intentCheckPrompt = `You are a research assistant intent detector. Analyze this user message and determine:
+1. Does the user want academic papers/articles/research? (yes/no)
+2. If yes, what is the research topic? (extract just the topic, no extra words)
+
+User message: "${message}"
+
+Respond in this exact format:
+WANTS_PAPERS: yes/no
+TOPIC: [topic or "none"]`;
+
+      let wantsPapers = false;
+      let researchTopic = "";
       
-      if (askingForPapers) {
-        // Extract the topic from the message (remove command words)
-        const topic = message
-          .replace(/\b(find|search|get|show|give me|look for)\s+(me\s+)?(papers?|articles?|research|studies|publications?|sources?)\s+(on|about|regarding|for)\s+/gi, '')
-          .replace(/\b(papers?|articles?|research|studies|publications?|sources?)\s+(on|about|regarding|for)\s+/gi, '')
-          .trim();
-        
-        console.log('Searching for papers on:', topic);
-        const papers = await searchPapers(topic, 5);
+      if (env.AI) {
+        try {
+          const intentResponse = await env.AI.run('@cf/meta/llama-3.1-70b-instruct', {
+            messages: [
+              { role: 'system', content: 'You are a helpful intent classifier. Be concise.' },
+              { role: 'user', content: intentCheckPrompt }
+            ],
+            max_tokens: 100
+          }) as any;
+          
+          const intentText = intentResponse?.response || '';
+          console.log('Intent check response:', intentText);
+          
+          wantsPapers = /WANTS_PAPERS:\s*yes/i.test(intentText);
+          const topicMatch = intentText.match(/TOPIC:\s*(.+?)(?:\n|$)/i);
+          researchTopic = topicMatch ? topicMatch[1].trim().replace(/["']/g, '') : message;
+          
+          console.log('Wants papers:', wantsPapers, 'Topic:', researchTopic);
+        } catch (error) {
+          console.error('Intent check error:', error);
+          // Fallback to regex
+          wantsPapers = /\b(papers?|articles?|research|studies|publications?|sources?)\b/i.test(message);
+          researchTopic = message;
+        }
+      }
+      
+      if (wantsPapers && researchTopic && researchTopic !== 'none') {
+        console.log('Searching for papers on:', researchTopic);
+        const papers = await searchPapers(researchTopic, 5);
         console.log('Papers found:', papers ? papers.length : 0);
         if (papers && papers.length > 0) {
           // Return papers directly without AI to avoid hallucination
           console.log('RETURNING PAPERS DIRECTLY - BYPASSING AI');
           const formattedPapers = formatPapersForAI(papers);
-          aiContent = `Here are relevant papers from Semantic Scholar:\n\n${formattedPapers}\n\nThese papers cover various aspects of your research topic.`;
+          aiContent = `## Research Papers on "${researchTopic}"\n\nI found ${papers.length} relevant papers from Semantic Scholar:\n\n${formattedPapers}\n\n---\n*Tip: Click the links to view full papers with abstracts and citations.*`;
           
           return new Response(JSON.stringify({
             message: {

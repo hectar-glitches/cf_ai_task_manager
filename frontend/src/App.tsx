@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 
 interface ChatMessage {
   id: string;
@@ -102,8 +103,8 @@ function App() {
               <div className="text-xs font-medium text-gray-500 mb-2">
                 {msg.type === 'user' ? 'You' : 'Assistant'}
               </div>
-              <div className="text-[15px] leading-relaxed text-gray-900">
-                {msg.content}
+              <div className="text-[15px] leading-relaxed text-gray-900 prose prose-sm max-w-none">
+                <ReactMarkdown>{msg.content}</ReactMarkdown>
               </div>
             </div>
           ))}
