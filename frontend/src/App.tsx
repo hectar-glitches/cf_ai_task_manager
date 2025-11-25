@@ -79,7 +79,7 @@ function App() {
             <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
               <span className="text-white text-sm font-semibold">R</span>
             </div>
-            <h1 className="text-lg font-semibold text-gray-900">Research Synthesis Agent</h1>
+            <h1 className="text-lg font-semibold text-gray-900">Research Agent</h1>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -110,7 +110,7 @@ function App() {
           {isLoading && (
             <div>
               <div className="text-xs font-medium text-gray-500 mb-2">Assistant</div>
-              <div className="text-[15px] text-gray-400">Thinking...</div>
+              <div className="text-[15px] text-gray-400">Just a sec...</div>
             </div>
           )}
           <div ref={messagesEndRef} />

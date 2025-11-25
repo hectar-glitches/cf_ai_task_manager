@@ -87,6 +87,7 @@ export default {
         console.log('Papers found:', papers ? papers.length : 0);
         if (papers && papers.length > 0) {
           // Return papers directly without AI to avoid hallucination
+          console.log('RETURNING PAPERS DIRECTLY - BYPASSING AI');
           const formattedPapers = formatPapersForAI(papers);
           aiContent = `Here are relevant papers from Semantic Scholar:\n\n${formattedPapers}\n\nThese papers cover various aspects of your research topic.`;
           
