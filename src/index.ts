@@ -28,16 +28,20 @@ async function searchPapers(query: string, limit: number = 5) {
   }
 }
 
-// Function to format papers for AI context
+// Function to format papers in APA for AI context
 function formatPapersForAI(papers: any[]) {
   if (!papers || papers.length === 0) return "No papers found.";
   
   return papers.map((paper, idx) => {
-    const authors = paper.authors?.map((a: any) => a.name).join(', ') || 'Unknown authors';
-    return `${idx + 1}. "${paper.title}" by ${authors} (${paper.year || 'N/A'})
-   Citations: ${paper.citationCount || 0} | Venue: ${paper.venue || 'N/A'}
-   URL: https://www.semanticscholar.org/paper/${paper.paperId}
-   Abstract: ${paper.abstract?.substring(0, 200) || 'No abstract available'}...`;
+    const authors = paper.authors?.map((a: any) => a.name).join(', ') || 'Unknown';
+    const year = paper.year || 'n.d.';
+    const title = paper.title;
+    const venue = paper.venue || 'No venue';
+    const citations = paper.citationCount || 0;
+    const link = `https://www.semanticscholar.org/paper/${paper.paperId}`;
+    
+    // Format in APA style
+    return `${authors} (${year}). ${title}. ${venue}. Citations: ${citations}. Retrieved from ${link}`;
   }).join('\n\n');
 }
 
@@ -94,15 +98,7 @@ export default {
           const messages = [
             { 
               role: 'system', 
-              content: `You are an expert research assistant with access to Semantic Scholar's academic paper database. When users ask about research topics:
-
-1. If I provide papers from Semantic Scholar, present them clearly with titles, authors, years, and links
-2. Help users understand which papers are most relevant and why
-3. Suggest additional search strategies and databases
-4. Guide on evaluating source credibility (citation counts, venues, methodology)
-5. Synthesize insights across multiple papers
-
-Format your responses clearly. When presenting papers, make sure to include the Semantic Scholar URLs I provide.` 
+              content: `You are a research assistant. When you receive papers from Semantic Scholar (they will be in APA format already), simply present them to the user and add a brief comment about their relevance to the research topic. Do not reformat them - they are already properly formatted.` 
             }
           ];
           
