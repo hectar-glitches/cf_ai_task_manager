@@ -1,5 +1,8 @@
 # cf_ai_task_manager
 
+<img width="1020" height="1054" alt="Screenshot 2025-11-24 at 21 01 31" src="https://github.com/user-attachments/assets/69910605-ed28-4e15-8fb9-b8c760a36dc5" />
+
+
 An intelligent AI-powered task management system built on Cloudflare's platform, featuring real-time chat, natural language processing with Llama 3.3, and automated workflow coordination.
 
 ## 🚀 Features
