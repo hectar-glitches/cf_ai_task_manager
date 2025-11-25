@@ -60,7 +60,8 @@ Be scholarly but accessible. Cite general research principles and methodologies.
           }
           
           const aiResponse = await env.AI.run('@cf/meta/llama-3.1-70b-instruct', {
-            messages
+            messages,
+            max_tokens: 2048  // Increase from default 512 to allow longer responses
           }) as any;
           
           aiContent = aiResponse.response || aiResponse.result?.response || aiResponse;
