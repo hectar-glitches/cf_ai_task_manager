@@ -80,15 +80,16 @@ export default {
       
       // Check if user is asking for papers and search Semantic Scholar
       const askingForPapers = /\b(papers?|articles?|research|studies|publications?|find|search|sources?)\b/i.test(message);
-      let papersContext = "";
+      let systemPrompt = "You are a helpful research assistant.";
       
       if (askingForPapers) {
         console.log('Searching for papers on:', message);
         const papers = await searchPapers(message, 5);
         console.log('Papers found:', papers ? papers.length : 0);
         if (papers && papers.length > 0) {
-          papersContext = `\n\nI found these relevant papers from Semantic Scholar:\n\n${formatPapersForAI(papers)}\n\n`;
-          console.log('Papers context length:', papersContext.length);
+          const formattedPapers = formatPapersForAI(papers);
+          systemPrompt = `You are a research assistant. Here are relevant papers from Semantic Scholar (already in APA format):\n\n${formattedPapers}\n\nPresent these papers to the user and briefly comment on their relevance.`;
+          console.log('System prompt with papers length:', systemPrompt.length);
         }
       }
       
@@ -98,7 +99,7 @@ export default {
           const messages = [
             { 
               role: 'system', 
-              content: `You are a research assistant. When you receive papers from Semantic Scholar (they will be in APA format already), simply present them to the user and add a brief comment about their relevance to the research topic. Do not reformat them - they are already properly formatted.` 
+              content: systemPrompt
             }
           ];
           
@@ -107,11 +108,8 @@ export default {
             messages.push(...history);
           }
           
-          // Add current message with papers context if available
-          const userMessage = papersContext 
-            ? `${message}${papersContext}` 
-            : message;
-          messages.push({ role: 'user', content: userMessage });
+          // Add current message
+          messages.push({ role: 'user', content: message });
           
           const aiResponse = await env.AI.run('@cf/meta/llama-3.1-70b-instruct', {
             messages,
