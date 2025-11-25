@@ -82,8 +82,14 @@ export default {
       const askingForPapers = /\b(papers?|articles?|research|studies|publications?|find|search|sources?)\b/i.test(message);
       
       if (askingForPapers) {
-        console.log('Searching for papers on:', message);
-        const papers = await searchPapers(message, 5);
+        // Extract the topic from the message (remove command words)
+        const topic = message
+          .replace(/\b(find|search|get|show|give me|look for)\s+(me\s+)?(papers?|articles?|research|studies|publications?|sources?)\s+(on|about|regarding|for)\s+/gi, '')
+          .replace(/\b(papers?|articles?|research|studies|publications?|sources?)\s+(on|about|regarding|for)\s+/gi, '')
+          .trim();
+        
+        console.log('Searching for papers on:', topic);
+        const papers = await searchPapers(topic, 5);
         console.log('Papers found:', papers ? papers.length : 0);
         if (papers && papers.length > 0) {
           // Return papers directly without AI to avoid hallucination
