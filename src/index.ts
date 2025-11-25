@@ -81,8 +81,10 @@ export default {
       if (askingForPapers) {
         console.log('Searching for papers on:', message);
         const papers = await searchPapers(message, 5);
+        console.log('Papers found:', papers ? papers.length : 0);
         if (papers && papers.length > 0) {
           papersContext = `\n\nI found these relevant papers from Semantic Scholar:\n\n${formatPapersForAI(papers)}\n\n`;
+          console.log('Papers context length:', papersContext.length);
         }
       }
       
