@@ -31,28 +31,36 @@ export default {
 
     // Chat endpoint - Research Synthesis Agent
     if (path === "/api/chat" && request.method === "POST") {
-      const { message } = await request.json() as any;
+      const { message, history } = await request.json() as any;
       
       let aiContent;
       
       // Use Cloudflare Workers AI for research synthesis
       if (env.AI) {
         try {
-          const aiResponse = await env.AI.run('@cf/meta/llama-3.1-70b-instruct', {
-            messages: [
-              { 
-                role: 'system', 
-                content: `You are an expert research assistant that helps users find and synthesize academic sources. When given a research question or topic:
-                        1. Suggest relevant search terms and databases
-                        2. Explain what types of sources would be most valuable
-                        3. Guide users on evaluating source credibility
-                        4. Help synthesize information from multiple perspectives
-                        5. Identify gaps in current research
+          const messages = [
+            { 
+              role: 'system', 
+              content: `You are an expert research assistant that helps users find and synthesize academic sources. When given a research question or topic:
+1. Suggest relevant search terms and databases
+2. Explain what types of sources would be most valuable
+3. Guide users on evaluating source credibility
+4. Help synthesize information from multiple perspectives
+5. Identify gaps in current research
 
-                        Be scholarly but accessible. Cite general research principles and methodologies.` 
-              },
-              { role: 'user', content: message }
-            ]
+Be scholarly but accessible. Cite general research principles and methodologies. Remember the conversation context and refer back to previous topics when relevant.` 
+            }
+          ];
+          
+          // Add conversation history if provided
+          if (history && Array.isArray(history)) {
+            messages.push(...history);
+          } else {
+            messages.push({ role: 'user', content: message });
+          }
+          
+          const aiResponse = await env.AI.run('@cf/meta/llama-3.1-70b-instruct', {
+            messages
           }) as any;
           
           aiContent = aiResponse.response || aiResponse.result?.response || aiResponse;

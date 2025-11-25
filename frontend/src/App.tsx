@@ -36,7 +36,8 @@ function App() {
       type: 'user'
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    const currentMessages = [...messages, userMessage];
+    setMessages(currentMessages);
     setInputMessage('');
     setIsLoading(true);
 
@@ -44,7 +45,14 @@ function App() {
       const response = await fetch(`${API_BASE_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, message: inputMessage })
+        body: JSON.stringify({ 
+          userId, 
+          message: inputMessage,
+          history: currentMessages.slice(-10).map(msg => ({
+            role: msg.type === 'user' ? 'user' : 'assistant',
+            content: msg.content
+          }))
+        })
       });
 
       const data = await response.json();
