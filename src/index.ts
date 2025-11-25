@@ -88,7 +88,7 @@ export default {
         console.log('Papers found:', papers ? papers.length : 0);
         if (papers && papers.length > 0) {
           const formattedPapers = formatPapersForAI(papers);
-          systemPrompt = `You are a research assistant. Here are relevant papers from Semantic Scholar (already in APA format):\n\n${formattedPapers}\n\nPresent these papers to the user and briefly comment on their relevance.`;
+          systemPrompt = `You are a research assistant. IMPORTANT: Copy and paste these EXACT papers from Semantic Scholar. DO NOT make up your own papers. DO NOT change the URLs or citation counts. Present these EXACT citations:\n\n${formattedPapers}\n\nThen add a brief comment about their relevance.`;
           console.log('System prompt with papers length:', systemPrompt.length);
         }
       }
