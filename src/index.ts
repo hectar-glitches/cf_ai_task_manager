@@ -117,10 +117,9 @@ Format your responses clearly. When presenting papers, make sure to include the 
             : message;
           messages.push({ role: 'user', content: userMessage });
           
-          const aiResponse = await env.AI.run('@cf/qwen/qwen1.5-14b-chat-awq', {
+          const aiResponse = await env.AI.run('@cf/meta/llama-3.1-70b-instruct', {
             messages,
-            max_tokens: 2048,
-            temperature: 0.7
+            max_tokens: 2048
           }) as any;
           
           console.log('Raw AI response:', JSON.stringify(aiResponse).substring(0, 200));
